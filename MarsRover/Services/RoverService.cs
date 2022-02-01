@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MarsRover.Services
@@ -128,6 +129,120 @@ namespace MarsRover.Services
                     break;
             }
             return Direction;
+        }
+
+        public void GetAreaValues(ref int Width, ref int Height)
+        {
+            int tempInt;
+            var SplittedAreaValues = new String[2];
+
+            do
+            {
+                Console.WriteLine("Test Input:");
+                var AreaValuesLine = Console.ReadLine();
+
+                if (!string.IsNullOrEmpty(AreaValuesLine))
+                {
+                    SplittedAreaValues = AreaValuesLine.Split(' ');
+                }
+            } while (!int.TryParse(SplittedAreaValues.ElementAtOrDefault(0), out tempInt) || !int.TryParse(SplittedAreaValues.ElementAtOrDefault(1), out tempInt) || SplittedAreaValues.Length != 2);
+
+            Width = Convert.ToInt32(SplittedAreaValues[0]);
+            Height = Convert.ToInt32(SplittedAreaValues[1]);
+        }
+
+        public PDModel GetPositionAndDirection()
+        {
+            var pdmodel = new PDModel();
+            int tempInt;
+            var SplittedRoverValues = new String[3];
+            bool isValidDirection;
+
+            do
+            {
+                var RoverValuesLine = Console.ReadLine();
+
+                if (!string.IsNullOrEmpty(RoverValuesLine))
+                {
+                    SplittedRoverValues = RoverValuesLine.Split(' ');
+                }
+                isValidDirection = CheckDirection(SplittedRoverValues[2]);
+
+            } while (!int.TryParse(SplittedRoverValues[0], out tempInt) || !int.TryParse(SplittedRoverValues[1], out tempInt) || !onlyLetters(SplittedRoverValues[2]) || SplittedRoverValues.Length != 3 || !isValidDirection);
+
+            pdmodel.PositionX = Convert.ToInt32(SplittedRoverValues[0]);
+            pdmodel.PositionY = Convert.ToInt32(SplittedRoverValues[1]);
+            pdmodel.Direction = SplittedRoverValues[2];
+
+            return pdmodel;
+        }
+
+        public string? GetMovementAction()
+        {
+            bool isChar = false;
+            bool isValidAction = false;
+
+            string? RoverPathCommandLine = string.Empty;
+
+            do
+            {
+                RoverPathCommandLine = Console.ReadLine();
+
+                if (!string.IsNullOrEmpty(RoverPathCommandLine))
+                {
+                    isChar = onlyLetters(RoverPathCommandLine);
+                    isValidAction = CheckMoveAction(RoverPathCommandLine);
+                }
+
+            } while (!isChar || !isValidAction);
+
+            return RoverPathCommandLine;
+        }
+
+        public void PrintResult(RoverModel[] RoverModelList)
+        {
+            if (RoverModelList != null)
+            {
+                foreach (var roveritem in RoverModelList)
+                {
+                    Console.WriteLine(roveritem.PositionX + " " + roveritem.PositionY + " " + roveritem.Direction);
+                }
+            }
+        }
+
+        public bool CheckDirection(string direction)
+        {
+            if (direction == "E" || direction == "N" || direction == "W" || direction == "S")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool CheckMoveAction(string action)
+        {
+            bool returnval = false;
+            foreach (char item in action)
+            {
+                if (item.Equals('L') || item.Equals('R') || item.Equals('M'))
+                {
+                    returnval = true;
+                }
+                else
+                {
+                    returnval = false;
+                    break;
+                }
+            }
+            return returnval;
+        }
+
+        public bool onlyLetters(string str)
+        {
+            return Regex.IsMatch(str, @"^[a-zA-Z]+$");
         }
 
     }
